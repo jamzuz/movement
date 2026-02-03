@@ -82,9 +82,9 @@ func _physics_process(delta: float) -> void:
 
 	# --- UPDATE FLOOR TIMER (Coyote Time) ---
 	if is_on_floor():
-		floor_timer = floor_grace_time  # reset when on floor
+		floor_timer = floor_grace_time	# reset when on floor
 	else:
-		floor_timer -= delta             # countdown while in air
+		floor_timer -= delta	# countdown while in air
 
 	# --- UPDATE JUMP BUFFER ---
 	if Input.is_action_just_pressed("Jump"):
@@ -115,7 +115,7 @@ func _physics_process(delta: float) -> void:
 					States.WALK if current_state == States.CROUCH and can_stand() else States.CROUCH
 				)
 
-		# Sprint toggle - FIXED: Changed OR to AND, added crouch-to-sprint transition
+		# Sprint toggle
 		if Input.is_action_just_pressed("Sprint"):
 			if current_state == States.CROUCH and can_stand():
 				# Allow sprint from crouch if we can stand
