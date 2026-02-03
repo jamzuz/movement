@@ -1,6 +1,8 @@
 class_name PlayerController
 extends CharacterBody3D
 
+
+#region Enums
 enum States {
 	JUMP,
 	WALK,
@@ -9,6 +11,7 @@ enum States {
 	SPRINT,
 	SLIDE
 }
+#endregion
 
 #region Constants
 # Movement
@@ -33,14 +36,6 @@ const SLIDE_BOOST: float = 12.0
 const SLIDE_FRICTION: float = 10.0
 const SLIDE_TIME: float = 0.7
 const SLIDE_MIN_SPEED: float = 5.0
-#endregion
-
-#region Onready Vars
-@onready var head: Node3D = $Head
-@onready var collider: CollisionShape3D = $Collider
-@onready var collider_capsule: CapsuleShape3D = $Collider.shape
-@onready var camera_3d: Camera3D = $Head/Camera3D
-@onready var headroom_checker: ShapeCast3D = $Head/Headroom_checker
 #endregion
 
 #region Variables
@@ -70,15 +65,25 @@ var previous_state: States = States.WALK
 var state_change_cooldown: float = 0.1
 #endregion
 
+#region Onready Vars
+@onready var head: Node3D = %Head
+@onready var collider: CollisionShape3D = %Collider
+@onready var collider_capsule: CapsuleShape3D = %Collider.shape
+@onready var camera_3d: Camera3D = %Camera3D
+@onready var headroom_checker: ShapeCast3D = %Headroom_checker
+#endregion
+
+
 func _ready() -> void:
 	headroom_checker.add_exception(self)
+
 
 func _physics_process(delta: float) -> void:
 	# --- TIMERS ---
 	state_change_cooldown -= delta
 	
 	# --- INPUT ---
-	var input_dir := Input.get_vector("Left", "Right", "Forward", "Backward")
+	var input_dir: Vector2 = Input.get_vector(&"Left", &"Right", &"Forward", &"Backward")
 	direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
 	# --- UPDATE FLOOR TIMER (Coyote Time) ---
@@ -88,13 +93,13 @@ func _physics_process(delta: float) -> void:
 		floor_timer -= delta	# countdown while in air
 
 	# --- UPDATE JUMP BUFFER ---
-	if Input.is_action_just_pressed("Jump"):
+	if Input.is_action_just_pressed(&"Jump"):
 		jump_buffer_timer = jump_buffer_time
 	else:
 		jump_buffer_timer -= delta
 
 	# --- STATE TRANSITIONS ---
-	var on_floor_or_coyote := floor_timer > 0.0
+	var on_floor_or_coyote: float = floor_timer > 0.0
 	
 	if on_floor_or_coyote:
 		accel = GROUND_ACCEL
@@ -106,7 +111,7 @@ func _physics_process(delta: float) -> void:
 			change_state(States.JUMP)
 
 		# Crouch / Slide input
-		if Input.is_action_just_pressed("Crouch"):
+		if Input.is_action_just_pressed(&"Crouch"):
 			if current_state == States.SPRINT:
 				previous_state = current_state
 				change_state(States.SLIDE)
@@ -117,7 +122,7 @@ func _physics_process(delta: float) -> void:
 				)
 
 		# Sprint toggle
-		if Input.is_action_just_pressed("Sprint"):
+		if Input.is_action_just_pressed(&"Sprint"):
 			if current_state == States.CROUCH and can_stand():
 				# Allow sprint from crouch if we can stand
 				previous_state = current_state
@@ -206,8 +211,8 @@ func _physics_process(delta: float) -> void:
 	update_fov(delta)
 
 
-func update_collider(delta):
-	var target := NORMAL_HEIGHT
+func update_collider(delta: float) -> void:
+	var target: float = NORMAL_HEIGHT
 	if current_state == States.CROUCH or current_state == States.SLIDE:
 		target = CROUCH_HEIGHT
 
@@ -217,8 +222,9 @@ func update_collider(delta):
 		8.0 * delta
 	)
 
-func update_fov(delta):
-	var target_fov := NORMAL_FOV
+
+func update_fov(delta: float) -> void:
+	var target_fov: float = NORMAL_FOV
 
 	match current_state:
 		States.SLIDE:
@@ -233,9 +239,10 @@ func update_fov(delta):
 		target_fov,
 		8.0 * delta
 	)
-	
-func update_camera_height(delta):
-	var target_y := NORMAL_CAMERA_Y
+
+
+func update_camera_height(delta: float) -> void:
+	var target_y: float = NORMAL_CAMERA_Y
 
 	if current_state == States.SLIDE:
 		target_y = SLIDE_CAMERA_Y
@@ -247,6 +254,7 @@ func update_camera_height(delta):
 		target_y,
 		10.0 * delta
 	)
+
 
 func change_state(new_state: States) -> void:
 	# Prevent rapid state spam (except for immediate transitions like JUMP->FALL/SPRINT/WALK)
@@ -269,6 +277,7 @@ func change_state(new_state: States) -> void:
 			if slide_dir == Vector3.ZERO:
 				slide_dir = -transform.basis.z
 
+
 func _unhandled_input(event: InputEvent) -> void:
 	# Mouse capturing
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -280,7 +289,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if mouse_captured and event is InputEventMouseMotion:
 		rotate_look(event.relative)
 
-func rotate_look(rot_input : Vector2):
+
+func rotate_look(rot_input : Vector2) -> void:
 	look_rotation.x -= rot_input.y * look_speed
 	look_rotation.x = clamp(look_rotation.x, deg_to_rad(-85), deg_to_rad(85))
 	look_rotation.y -= rot_input.x * look_speed
@@ -289,13 +299,16 @@ func rotate_look(rot_input : Vector2):
 	head.transform.basis = Basis()
 	head.rotate_x(look_rotation.x)
 
-func capture_mouse():
+
+func capture_mouse() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	mouse_captured = true
+
 
 func can_stand() -> bool:
 	return !headroom_checker.is_colliding()
 
-func release_mouse():
+
+func release_mouse() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	mouse_captured = false

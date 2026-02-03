@@ -8,19 +8,23 @@
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xbw16"]
 height = 1.0
 
-[node name="Player" type="CharacterBody3D" unique_id=1443151114]
+[node name="PlayerController" type="CharacterBody3D" unique_id=1443151114]
 script = ExtResource("1_xbw16")
 
 [node name="Collider" type="CollisionShape3D" parent="." unique_id=1068187207]
+unique_name_in_owner = true
 shape = SubResource("CapsuleShape3D_6cb2c")
 
 [node name="Head" type="Node3D" parent="." unique_id=2062716582]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head" unique_id=685078384]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="Headroom_checker" type="ShapeCast3D" parent="Head" unique_id=1689998033]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.009305, 0)
 shape = SubResource("CapsuleShape3D_xbw16")
 target_position = Vector3(0, 0, 0)
