@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://u2npc0j24i5d"]
+
+[ext_resource type="Script" uid="uid://k0cleayxk560" path="res://PlayerController/player.gd" id="1_xbw16"]
+[ext_resource type="PackedScene" uid="uid://brxqjo4rs63td" path="res://assets/m4lolhands.glb" id="2_6d77c"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6cb2c"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xbw16"]
+height = 1.0
+
+[node name="Player" type="CharacterBody3D" unique_id=1443151114]
+script = ExtResource("1_xbw16")
+
+[node name="Collider" type="CollisionShape3D" parent="." unique_id=1068187207]
+shape = SubResource("CapsuleShape3D_6cb2c")
+
+[node name="Head" type="Node3D" parent="." unique_id=2062716582]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head" unique_id=685078384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Headroom_checker" type="ShapeCast3D" parent="Head" unique_id=1689998033]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.009305, 0)
+shape = SubResource("CapsuleShape3D_xbw16")
+target_position = Vector3(0, 0, 0)
+
+[node name="m4lolhands" parent="Head" unique_id=860740180 instance=ExtResource("2_6d77c")]
+transform = Transform3D(0.9961947, 0, 0.08715574, 0, 1, 0, -0.08715574, 0, 0.9961947, 0.20000005, -1.0535632, -0.7)
+
+[editable path="Head/m4lolhands"]
