@@ -1,31 +1,14 @@
+class_name PlayerController
 extends CharacterBody3D
 
-#region Variables
-# Mouse / Look
-var look_rotation: Vector2
-var look_speed: float = 0.002
-var mouse_captured: bool = false
-
-# Movement
-var accel: float = GROUND_ACCEL
-var direction: Vector3 = Vector3.ZERO
-var speed: float = WALK_SPEED
-var floor_grace_time: float = 0.1
-var floor_timer: float = 0.0
-
-# Jump buffering
-var jump_buffer_time: float = 0.1
-var jump_buffer_timer: float = 0.0
-
-# Slide
-var slide_dir: Vector3 = Vector3.ZERO
-var slide_timer: float = 0.0
-
-# State
-var current_state: States = States.FALL
-var previous_state: States = States.WALK
-var state_change_cooldown: float = 0.1
-#endregion
+enum States {
+	JUMP,
+	WALK,
+	FALL,
+	CROUCH,
+	SPRINT,
+	SLIDE
+}
 
 #region Constants
 # Movement
@@ -60,14 +43,32 @@ const SLIDE_MIN_SPEED: float = 5.0
 @onready var headroom_checker: ShapeCast3D = $Head/Headroom_checker
 #endregion
 
-enum States {
-	JUMP,
-	WALK,
-	FALL,
-	CROUCH,
-	SPRINT,
-	SLIDE
-}
+#region Variables
+# Mouse / Look
+var look_rotation: Vector2
+var look_speed: float = 0.002
+var mouse_captured: bool = false
+
+# Movement
+var accel: float = GROUND_ACCEL
+var direction: Vector3 = Vector3.ZERO
+var speed: float = WALK_SPEED
+var floor_grace_time: float = 0.1
+var floor_timer: float = 0.0
+
+# Jump buffering
+var jump_buffer_time: float = 0.1
+var jump_buffer_timer: float = 0.0
+
+# Slide
+var slide_dir: Vector3 = Vector3.ZERO
+var slide_timer: float = 0.0
+
+# State
+var current_state: States = States.FALL
+var previous_state: States = States.WALK
+var state_change_cooldown: float = 0.1
+#endregion
 
 func _ready() -> void:
 	headroom_checker.add_exception(self)
