@@ -36,6 +36,18 @@ const SLIDE_BOOST: float = 12.0
 const SLIDE_FRICTION: float = 10.0
 const SLIDE_TIME: float = 0.7
 const SLIDE_MIN_SPEED: float = 5.0
+
+# Lean
+const LEAN_ANGLE: float = 10.0
+const LEAN_CAMERA_OFFSET: float = 0.5
+const LEAN_SPEED: float = 8.0
+const LEFT_LEAN: float = -1.0
+const RIGHT_LEAN: float = 1.0   
+const NEUTRAL_LEAN: float = 0.0
+
+# Hands
+const NORMAL_POSITION: Vector3 = Vector3(0.227, -0.47, -0.69)
+const RETRACTED_POSITION: Vector3 = Vector3(0.227, -0.47, 0.6)
 #endregion
 
 #region Variables
@@ -63,6 +75,11 @@ var slide_timer: float = 0.0
 var current_state: States = States.FALL
 var previous_state: States = States.WALK
 var state_change_cooldown: float = 0.1
+
+# Lean
+var target_lean: float = 0.0
+var current_lean: float = 0.0
+
 #endregion
 
 #region Onready Vars
@@ -70,7 +87,11 @@ var state_change_cooldown: float = 0.1
 @onready var collider: CollisionShape3D = %Collider
 @onready var collider_capsule: CapsuleShape3D = %Collider.shape
 @onready var camera_3d: Camera3D = %Camera3D
-@onready var headroom_checker: ShapeCast3D = %Headroom_checker
+@onready var headroom_checker: ShapeCast3D = %HeadroomChecker
+@onready var lean_left_checker: ShapeCast3D = %LeanLeftChecker
+@onready var lean_right_checker: ShapeCast3D = %LeanRightChecker
+@onready var hands: Node3D = %Head/Camera3D/Hands
+@onready var weapon_tip: Marker3D = %Head/Camera3D/WeaponTip
 #endregion
 
 
@@ -79,6 +100,13 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if Input.is_action_pressed(&"Lean Left") and can_lean_left():
+		target_lean = LEFT_LEAN
+	elif Input.is_action_pressed(&"Lean Right") and can_lean_right():
+		target_lean = RIGHT_LEAN
+	else:
+		target_lean = NEUTRAL_LEAN
+	
 	# --- TIMERS ---
 	state_change_cooldown -= delta
 	
@@ -210,7 +238,8 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# --- CAMERA ---
-	update_camera_height(delta)
+	update_hands(delta)
+	update_camera(delta)
 	update_fov(delta)
 
 
@@ -244,7 +273,8 @@ func update_fov(delta: float) -> void:
 	)
 
 
-func update_camera_height(delta: float) -> void:
+func update_camera(delta: float) -> void:
+	#height
 	var target_y: float = NORMAL_CAMERA_Y
 
 	if current_state == States.SLIDE:
@@ -257,7 +287,14 @@ func update_camera_height(delta: float) -> void:
 		target_y,
 		10.0 * delta
 	)
-
+	#leaning
+	current_lean = lerp(current_lean, target_lean, delta * LEAN_SPEED)
+	
+	var target_tilt: float = deg_to_rad(-LEAN_ANGLE) * current_lean
+	var target_offset: float = LEAN_CAMERA_OFFSET * current_lean
+	
+	camera_3d.rotation.z = lerp(camera_3d.rotation.z, target_tilt, delta * LEAN_SPEED)
+	camera_3d.position.x = lerp(camera_3d.position.x, target_offset, delta * LEAN_SPEED)
 
 func change_state(new_state: States) -> void:
 	# Prevent rapid state spam (except for immediate transitions like JUMP->FALL/SPRINT/WALK)
@@ -301,7 +338,24 @@ func rotate_look(rot_input : Vector2) -> void:
 	rotate_y(look_rotation.y)
 	head.transform.basis = Basis()
 	head.rotate_x(look_rotation.x)
-
+	
+	
+func update_hands(delta):
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(
+		camera_3d.global_position,
+		weapon_tip.global_position
+	)
+	query.collision_mask = 2
+	query.exclude = [self] # Exclude player collision
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		# Wall detected, retract weapon
+		hands.position = hands.position.lerp(RETRACTED_POSITION, delta * 10)
+	else:
+		# No wall, return to normal position
+		hands.position = hands.position.lerp(NORMAL_POSITION, delta * 10)
 
 func capture_mouse() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -309,8 +363,11 @@ func capture_mouse() -> void:
 
 
 func can_stand() -> bool:
-	return !headroom_checker.is_colliding()
-
+	return not headroom_checker.is_colliding()
+func can_lean_right() -> bool:
+	return not lean_right_checker.is_colliding()
+func can_lean_left() -> bool:
+	return not lean_left_checker.is_colliding()
 
 func release_mouse() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
