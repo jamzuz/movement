@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://k0cleayxk560" path="res://PlayerController/player.gd" id="1_xbw16"]
 [ext_resource type="PackedScene" uid="uid://brxqjo4rs63td" path="res://assets/m4lolhands.glb" id="2_6d77c"]
+[ext_resource type="PackedScene" uid="uid://tpqoodnxgh4f" path="res://assets/m4hero.glb" id="3_t4ai6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6cb2c"]
 
@@ -9,6 +10,9 @@
 height = 1.0
 
 [node name="PlayerController" type="CharacterBody3D" unique_id=1443151114]
+floor_stop_on_slope = false
+floor_max_angle = 0.9599311
+floor_snap_length = 0.5
 script = ExtResource("1_xbw16")
 
 [node name="Collider" type="CollisionShape3D" parent="." unique_id=1068187207]
@@ -23,13 +27,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
-[node name="Headroom_checker" type="ShapeCast3D" parent="Head" unique_id=1689998033]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.009305, 0)
-shape = SubResource("CapsuleShape3D_xbw16")
-target_position = Vector3(0, 0, 0)
-
 [node name="m4lolhands" parent="Head" unique_id=860740180 instance=ExtResource("2_6d77c")]
 transform = Transform3D(0.9961947, 0, 0.08715574, 0, 1, 0, -0.08715574, 0, 0.9961947, 0.20000005, -1.0535632, -0.7)
+
+[node name="Cylinder_003" parent="Head/m4lolhands" index="1" unique_id=131688326]
+visible = false
+
+[node name="m4hero" parent="Head/m4lolhands" unique_id=16160480 instance=ExtResource("3_t4ai6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06526399, 0.02262329, 0.0657047)
+
+[node name="Headroom_checker" type="ShapeCast3D" parent="." unique_id=1689998033]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("CapsuleShape3D_xbw16")
+target_position = Vector3(0, 0, 0)
 
 [editable path="Head/m4lolhands"]
