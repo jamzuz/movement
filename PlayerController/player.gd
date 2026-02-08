@@ -179,7 +179,10 @@ func _physics_process(delta: float) -> void:
 			var current_speed := Vector3(velocity.x, 0, velocity.z).length()
 			if slide_timer <= 0.0 or floor_timer <= 0.0 or current_speed < SLIDE_MIN_SPEED:
 				previous_state = current_state
-				change_state(States.CROUCH)
+				if can_stand():
+					change_state(States.SPRINT)
+				else:
+					change_state(States.CROUCH)
 
 		States.FALL:
 			# Landing: restore previous state when back on actual floor
