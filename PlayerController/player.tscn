@@ -21,17 +21,18 @@ shape = SubResource("CapsuleShape3D_6cb2c")
 
 [node name="Head" type="Node3D" parent="." unique_id=2062716582]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21565789, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head" unique_id=685078384]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+fov = 50.0
 
 [node name="Hands" parent="Head/Camera3D" unique_id=860740180 instance=ExtResource("2_6d77c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22658074, -0.4758556, -0.67347383)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22658074, -0.4758556, -0.53894866)
 
 [node name="WeaponTip" type="Marker3D" parent="Head/Camera3D" unique_id=1023736257]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.29508814, -0.35440895, -1.7856108)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.29508814, -0.35440895, -1.6510856)
 
 [node name="HeadroomChecker" type="ShapeCast3D" parent="." unique_id=1689998033]
 unique_name_in_owner = true

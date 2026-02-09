@@ -25,9 +25,10 @@ const SPRINT_SPEED: float = 7.0
 const WALK_SPEED: float = 3.0
 
 # Camera
-const NORMAL_CAMERA_Y: float = -0.5
+const NORMAL_CAMERA_Y: float = 0.5
+const CROUCH_CAMERA_Y: float = 0.4
+const SLIDE_CAMERA_Y: float = 0.2
 const NORMAL_FOV: float = 80.0
-const SLIDE_CAMERA_Y: float = -0.7
 const SLIDE_FOV: float = 93.5
 const SPRINT_FOV: float = 85.0
 
@@ -36,6 +37,7 @@ const SLIDE_BOOST: float = 12.0
 const SLIDE_FRICTION: float = 10.0
 const SLIDE_TIME: float = 0.7
 const SLIDE_MIN_SPEED: float = 5.0
+const DOWNHILL_SLOPE_THRESHOLD: float = 0.3  # How steep before considered downhill (higher = steeper required)
 
 # Lean
 const LEAN_ANGLE: float = 10.0
@@ -100,6 +102,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if Input.is_action_just_pressed(&"Aim"):
+		#aiming
+		pass
 	if Input.is_action_pressed(&"Lean Left") and can_lean_left():
 		target_lean = LEFT_LEAN
 	elif Input.is_action_pressed(&"Lean Right") and can_lean_right():
@@ -203,14 +208,27 @@ func _physics_process(delta: float) -> void:
 			velocity.x = move_toward(velocity.x, slide_vel.x, SLIDE_FRICTION)
 			velocity.z = move_toward(velocity.z, slide_vel.z, SLIDE_FRICTION)
 
-			# End slide if time runs out, airborne, or too slow
+			# Check if we're on a downhill slope
+			var on_downhill_slope: bool = is_on_downhill_slope()
+			
+			# End slide if time runs out, airborne, or too slow (UNLESS on downhill slope)
 			var current_speed := Vector3(velocity.x, 0, velocity.z).length()
-			if slide_timer <= 0.0 or floor_timer <= 0.0 or current_speed < SLIDE_MIN_SPEED:
-				previous_state = current_state
-				if can_stand():
-					change_state(States.SPRINT)
-				else:
-					change_state(States.CROUCH)
+
+			if not on_downhill_slope:
+				if slide_timer <= 0.0 or floor_timer <= 0.0 or current_speed < SLIDE_MIN_SPEED:
+					previous_state = current_state
+					if can_stand():
+						change_state(States.SPRINT)
+					else:
+						change_state(States.CROUCH)
+			else:
+				# On downhill slope - only end slide if airborne (still allow jumping out)
+				if floor_timer <= 0.0:
+					previous_state = current_state
+					if can_stand():
+						change_state(States.SPRINT)
+					else:
+						change_state(States.CROUCH)
 
 		States.FALL:
 			# Landing: restore previous state when back on actual floor
@@ -236,11 +254,20 @@ func _physics_process(delta: float) -> void:
 
 	# --- PHYSICS ---
 	move_and_slide()
-
 	# --- CAMERA ---
 	update_hands(delta)
 	update_camera(delta)
 	update_fov(delta)
+
+
+func is_on_downhill_slope() -> bool:
+	if not is_on_floor():
+		return false
+	var normal := get_floor_normal()
+	if normal.y > 0.99:
+		return false
+	# Check if slope is steep enough and we're moving against the upward normal
+	return slide_dir.dot(normal) > DOWNHILL_SLOPE_THRESHOLD
 
 
 func update_collider(delta: float) -> void:
@@ -280,7 +307,7 @@ func update_camera(delta: float) -> void:
 	if current_state == States.SLIDE:
 		target_y = SLIDE_CAMERA_Y
 	elif current_state == States.CROUCH:
-		target_y = SLIDE_CAMERA_Y + 0.2
+		target_y = CROUCH_CAMERA_Y
 
 	camera_3d.position.y = lerp(
 		camera_3d.position.y,
