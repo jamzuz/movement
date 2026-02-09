@@ -1,5 +1,15 @@
 [gd_scene format=3 uid="uid://danntldlog5u7"]
 
 [ext_resource type="PackedScene" uid="uid://brxqjo4rs63td" path="res://assets/m4lolhands.glb" id="1_wk1xy"]
+[ext_resource type="PackedScene" uid="uid://tpqoodnxgh4f" path="res://assets/m4hero.glb" id="2_td0cs"]
 
-[node name="m4lolhands" unique_id=860740180 instance=ExtResource("1_wk1xy")]
+[node name="m4lolhands" unique_id=1018021630 instance=ExtResource("1_wk1xy")]
+
+[node name="Cube_002" parent="." index="0" unique_id=559482773]
+transform = Transform3D(0.9853206, -0.105573334, -0.13415498, 0.04965632, 0.92910975, -0.36645544, 0.16333264, 0.35441446, 0.9207133, -0.0054106116, 0.0047893226, -0.078010924)
+
+[node name="Cube_007" parent="." index="1" unique_id=1107462504]
+transform = Transform3D(1, 0, 0, 0, 0.985259, -0.17106937, 0, 0.17106937, 0.985259, -0.048517406, -0.011651382, -0.05125711)
+
+[node name="m4hero" parent="." index="2" unique_id=16160480 instance=ExtResource("2_td0cs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05379066, 0.001380682, 0.06926125)
