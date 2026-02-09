@@ -36,7 +36,7 @@ const SPRINT_FOV: float = 85.0
 const SLIDE_BOOST: float = 12.0
 const SLIDE_FRICTION: float = 10.0
 const SLIDE_TIME: float = 0.7
-const SLIDE_MIN_SPEED: float = 5.0
+const SLIDE_MIN_SPEED: float = 11.0
 const DOWNHILL_SLOPE_THRESHOLD: float = 0.3  # How steep before considered downhill (higher = steeper required)
 
 # Lean
@@ -213,9 +213,9 @@ func _physics_process(delta: float) -> void:
 			
 			# End slide if time runs out, airborne, or too slow (UNLESS on downhill slope)
 			var current_speed := Vector3(velocity.x, 0, velocity.z).length()
-
-			if not on_downhill_slope:
-				if slide_timer <= 0.0 or floor_timer <= 0.0 or current_speed < SLIDE_MIN_SPEED:
+			print(current_speed)
+			if not on_downhill_slope or current_speed < SLIDE_MIN_SPEED:
+				if slide_timer <= 0.0 or floor_timer <= 0.0:
 					previous_state = current_state
 					if can_stand():
 						change_state(States.SPRINT)
